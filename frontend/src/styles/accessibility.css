@@ -1,0 +1,174 @@
+/* Accessibility styles */
+
+/* CSS Variables for accessibility settings */
+:root {
+  --a11y-font-scale: 1;
+  --a11y-line-height: 1.5;
+}
+
+/* Apply font scaling to all text elements */
+body {
+  font-size: calc(1rem * var(--a11y-font-scale));
+  line-height: var(--a11y-line-height);
+}
+
+/* High contrast mode */
+.high-contrast {
+  --high-contrast-text: #000000;
+  --high-contrast-bg: #ffffff;
+  --high-contrast-link: #0000EE;
+  --high-contrast-visited: #551A8B;
+  --high-contrast-focus: #FF0000;
+  --high-contrast-border: #000000;
+}
+
+.high-contrast body {
+  background-color: var(--high-contrast-bg) !important;
+  color: var(--high-contrast-text) !important;
+}
+
+.high-contrast a {
+  color: var(--high-contrast-link) !important;
+}
+
+.high-contrast a:visited {
+  color: var(--high-contrast-visited) !important;
+}
+
+.high-contrast button,
+.high-contrast input,
+.high-contrast select,
+.high-contrast textarea {
+  border: 2px solid var(--high-contrast-border) !important;
+}
+
+.high-contrast *:focus {
+  outline: 3px solid var(--high-contrast-focus) !important;
+  outline-offset: 2px !important;
+}
+
+/* Reduced motion */
+.reduced-motion * {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Dyslexic font */
+.dyslexic-font body,
+.dyslexic-font button,
+.dyslexic-font input,
+.dyslexic-font select,
+.dyslexic-font textarea,
+.dyslexic-font h1,
+.dyslexic-font h2,
+.dyslexic-font h3,
+.dyslexic-font h4,
+.dyslexic-font h5,
+.dyslexic-font h6,
+.dyslexic-font p,
+.dyslexic-font span,
+.dyslexic-font a {
+  font-family: 'OpenDyslexic', 'Comic Sans MS', sans-serif !important;
+  letter-spacing: 0.05em !important;
+  word-spacing: 0.1em !important;
+}
+
+/* Focus styles for keyboard navigation */
+:focus-visible {
+  outline: 3px solid #2D3277 !important;
+  outline-offset: 2px !important;
+}
+
+/* Skip link styles */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: #2D3277;
+  color: white;
+  padding: 8px;
+  z-index: 100;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* Ensure proper contrast for form elements */
+input, 
+textarea, 
+select {
+  border: 1px solid rgba(0, 0, 0, 0.23);
+}
+
+/* Ensure proper focus indication for interactive elements */
+button:focus,
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 2px solid #2D3277;
+  outline-offset: 2px;
+}
+
+/* Ensure proper color contrast for disabled elements */
+button:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Ensure proper text contrast */
+.text-contrast-safe {
+  color: #333333;
+}
+
+/* Ensure proper link indication */
+a {
+  text-decoration: underline;
+}
+
+/* Ensure proper button styling */
+button {
+  cursor: pointer;
+}
+
+/* Ensure proper form field labeling */
+label {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+}
+
+/* Ensure proper table accessibility */
+table {
+  border-collapse: collapse;
+}
+
+th {
+  text-align: left;
+}
+
+th, td {
+  padding: 0.5rem;
+}
+
+/* Ensure proper list styling */
+ul, ol {
+  padding-left: 2rem;
+}
+
+/* Ensure proper heading hierarchy */
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+}
+
+/* Ensure proper image accessibility */
+img {
+  max-width: 100%;
+  height: auto;
+}

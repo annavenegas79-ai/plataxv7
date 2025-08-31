@@ -1,0 +1,137 @@
+{
+  "name": "PlataMX - La mejor plataforma de compra y venta en México",
+  "short_name": "PlataMX",
+  "description": "Compra y vende productos en PlataMX. Encuentra las mejores ofertas en electrónica, moda, hogar y más.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#2D3277",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/android-chrome-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Buscar productos",
+      "short_name": "Buscar",
+      "description": "Buscar productos en PlataMX",
+      "url": "/search",
+      "icons": [{ "src": "/icons/search-icon.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Mi carrito",
+      "short_name": "Carrito",
+      "description": "Ver mi carrito de compras",
+      "url": "/cart",
+      "icons": [{ "src": "/icons/cart-icon.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Mis compras",
+      "short_name": "Compras",
+      "description": "Ver mis compras recientes",
+      "url": "/account/purchases",
+      "icons": [{ "src": "/icons/purchases.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Favoritos",
+      "short_name": "Favoritos",
+      "description": "Ver mis productos favoritos",
+      "url": "/account/favorites",
+      "icons": [{ "src": "/icons/favorites.png", "sizes": "192x192" }]
+    }
+  ],
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=com.platamx.app",
+      "id": "com.platamx.app"
+    },
+    {
+      "platform": "itunes",
+      "url": "https://apps.apple.com/app/platamx/id123456789"
+    }
+  ],
+  "prefer_related_applications": false,
+  "categories": ["shopping", "lifestyle", "finance"],
+  "screenshots": [
+    {
+      "src": "/screenshots/home.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "platform": "narrow",
+      "label": "Pantalla de inicio de PlataMX"
+    },
+    {
+      "src": "/screenshots/product.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "platform": "narrow",
+      "label": "Detalle de producto en PlataMX"
+    },
+    {
+      "src": "/screenshots/cart.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "platform": "narrow",
+      "label": "Carrito de compras en PlataMX"
+    },
+    {
+      "src": "/screenshots/ar-view.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "platform": "narrow",
+      "label": "Vista de realidad aumentada en PlataMX"
+    }
+  ],
+  "lang": "es-MX",
+  "dir": "ltr",
+  "scope": "/",
+  "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7"
+}

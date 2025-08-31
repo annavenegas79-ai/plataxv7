@@ -1,0 +1,216 @@
+version: '3.8'
+
+services:
+  # API Gateway
+  gateway:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - AUTH_SERVICE_URL=http://auth:3001
+      - CATALOG_SERVICE_URL=http://catalog:3002
+      - PAYMENT_SERVICE_URL=http://payment:3003
+      - SHIPPING_SERVICE_URL=http://shipping:3004
+      - NOTIFICATION_SERVICE_URL=http://notification:3005
+      - JWT_SECRET=your-secret-key
+    depends_on:
+      - auth
+      - catalog
+      - payment
+      - shipping
+      - notification
+    networks:
+      - platamx-network
+    restart: unless-stopped
+
+  # Auth Service
+  auth:
+    build:
+      context: ./backend/services/auth
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - JWT_SECRET=your-secret-key
+      - MONGO_URI=mongodb://mongo:27017/platamx-auth
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - mongo
+      - redis
+    networks:
+      - platamx-network
+    restart: unless-stopped
+
+  # Catalog Service
+  catalog:
+    build:
+      context: ./backend/services/catalog
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=development
+      - PORT=3002
+      - MONGO_URI=mongodb://mongo:27017/platamx-catalog
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+    depends_on:
+      - mongo
+      - elasticsearch
+    networks:
+      - platamx-network
+    restart: unless-stopped
+
+  # Payment Service
+  payment:
+    build:
+      context: ./backend/services/payment
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=development
+      - PORT=3003
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/platamx_payments
+      - STRIPE_SECRET_KEY=your-stripe-key
+    depends_on:
+      - postgres
+    networks:
+      - platamx-network
+    restart: unless-stopped
+
+  # Shipping Service
+  shipping:
+    build:
+      context: ./backend/services/shipping
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=development
+      - PORT=3004
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/platamx_shipping
+    depends_on:
+      - postgres
+    networks:
+      - platamx-network
+    restart: unless-stopped
+
+  # Notification Service
+  notification:
+    build:
+      context: ./backend/services/notification
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=development
+      - PORT=3005
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/platamx_notifications
+      - REDIS_URL=redis://redis:6379
+      - SMTP_HOST=mailhog
+      - SMTP_PORT=1025
+    depends_on:
+      - postgres
+      - redis
+      - mailhog
+    networks:
+      - platamx-network
+    restart: unless-stopped
+
+  # MongoDB
+  mongo:
+    image: mongo:6
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - platamx-network
+    restart: unless-stopped
+
+  # PostgreSQL
+  postgres:
+    image: postgres:15
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_MULTIPLE_DATABASES=platamx_payments,platamx_shipping,platamx_notifications
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./backend/scripts/init-postgres.sh:/docker-entrypoint-initdb.d/init-postgres.sh
+    networks:
+      - platamx-network
+    restart: unless-stopped
+
+  # Redis
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - platamx-network
+    restart: unless-stopped
+
+  # Elasticsearch
+  elasticsearch:
+    image: elasticsearch:8.8.0
+    ports:
+      - "9200:9200"
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    networks:
+      - platamx-network
+    restart: unless-stopped
+
+  # MailHog (for email testing)
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - "1025:1025" # SMTP port
+      - "8025:8025" # Web UI
+    networks:
+      - platamx-network
+    restart: unless-stopped
+
+  # Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    depends_on:
+      - gateway
+    networks:
+      - platamx-network
+    restart: unless-stopped
+
+  # Mobile API (for mobile app)
+  mobile-api:
+    build:
+      context: ./mobile-api
+      dockerfile: Dockerfile
+    ports:
+      - "3010:3010"
+    environment:
+      - NODE_ENV=development
+      - PORT=3010
+      - GATEWAY_URL=http://gateway:3000
+    depends_on:
+      - gateway
+    networks:
+      - platamx-network
+    restart: unless-stopped
+
+networks:
+  platamx-network:
+    driver: bridge
+
+volumes:
+  mongo-data:
+  postgres-data:
+  redis-data:
+  elasticsearch-data:
