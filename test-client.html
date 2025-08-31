@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Data Test Client</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        h2 {
+            margin-top: 0;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        input, select {
+            padding: 8px;
+            margin-bottom: 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .result {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 15px;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Enterprise Data Test Client</h1>
+    
+    <div class="section">
+        <h2>Feature Flags</h2>
+        <div>
+            <input type="text" id="flagName" placeholder="Feature flag name" value="test-flag">
+            <input type="text" id="flagDescription" placeholder="Description" value="Test feature flag">
+            <select id="flagEnabled">
+                <option value="true">Enabled</option>
+                <option value="false">Disabled</option>
+            </select>
+            <input type="number" id="rolloutPercentage" placeholder="Rollout percentage" value="100" min="0" max="100">
+            <button onclick="createFeatureFlag()">Create Feature Flag</button>
+            <button onclick="checkFeatureFlag()">Check Flag Status</button>
+        </div>
+        <div class="result" id="featureFlagResult"></div>
+    </div>
+    
+    <div class="section">
+        <h2>A/B Testing</h2>
+        <div>
+            <input type="text" id="testName" placeholder="A/B test name" value="test-ab">
+            <input type="text" id="testDescription" placeholder="Description" value="Test A/B test">
+            <input type="text" id="variants" placeholder="Variants (comma separated)" value="A,B">
+            <input type="text" id="goals" placeholder="Goals (comma separated)" value="conversion">
+            <button onclick="createABTest()">Create A/B Test</button>
+            <button onclick="assignToTest()">Assign to Test</button>
+            <button onclick="trackConversion()">Track Conversion</button>
+            <button onclick="getTestResults()">Get Results</button>
+        </div>
+        <div class="result" id="abTestResult"></div>
+    </div>
+    
+    <div class="section">
+        <h2>Data Warehouse ETL</h2>
+        <div>
+            <input type="text" id="etlType" placeholder="ETL type" value="full_sync">
+            <input type="text" id="etlEntity" placeholder="Entity" value="users">
+            <input type="text" id="etlDestination" placeholder="Destination" value="bigquery">
+            <button onclick="scheduleETLJob()">Schedule ETL Job</button>
+            <button onclick="executeETLJob()">Execute ETL Job</button>
+        </div>
+        <div class="result" id="etlResult"></div>
+    </div>
+    
+    <div class="section">
+        <h2>Cohort Analysis</h2>
+        <div>
+            <input type="text" id="cohortName" placeholder="Cohort name" value="test-cohort">
+            <input type="text" id="cohortDescription" placeholder="Description" value="Test cohort">
+            <select id="cohortType">
+                <option value="acquisition">Acquisition</option>
+                <option value="behavioral">Behavioral</option>
+                <option value="demographic">Demographic</option>
+            </select>
+            <button onclick="createCohort()">Create Cohort</button>
+            <button onclick="getCohortMetrics()">Get Cohort Metrics</button>
+        </div>
+        <div class="result" id="cohortResult"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5001/api/enterprise-data';
+        let etlJobId = 1;
+        let cohortId = 1;
+
+        // Helper function to display results
+        function displayResult(elementId, data) {
+            const element = document.getElementById(elementId);
+            element.textContent = JSON.stringify(data, null, 2);
+            console.log(`Result for ${elementId}:`, data);
+        }
+        
+        // Helper function to handle API calls with better error handling
+        async function callApi(url, method = 'GET', body = null) {
+            try {
+                console.log(`Making ${method} request to ${url}`, body);
+                const options = {
+                    method,
+                    headers: { 'Content-Type': 'application/json' }
+                };
+                
+                if (body) {
+                    options.body = JSON.stringify(body);
+                }
+                
+                const response = await fetch(url, options);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error(`API error (${response.status}):`, errorText);
+                    return { error: `API error: ${response.status} ${response.statusText}`, details: errorText };
+                }
+                
+                return await response.json();
+            } catch (error) {
+                console.error('API call failed:', error);
+                return { error: error.message, stack: error.stack };
+            }
+        }
+
+        // Feature Flags
+        async function createFeatureFlag() {
+            const data = await callApi(`${API_BASE}/feature-flags`, 'POST', {
+                name: document.getElementById('flagName').value,
+                description: document.getElementById('flagDescription').value,
+                isEnabled: document.getElementById('flagEnabled').value === 'true',
+                rolloutPercentage: parseInt(document.getElementById('rolloutPercentage').value)
+            });
+            displayResult('featureFlagResult', data);
+            if (data.id) {
+                etlJobId = data.id; // Store for later use
+            }
+        }
+
+        async function checkFeatureFlag() {
+            const flagName = document.getElementById('flagName').value;
+            const data = await callApi(`${API_BASE}/feature-flags/${flagName}/enabled`);
+            displayResult('featureFlagResult', data);
+        }
+
+        // A/B Testing
+        async function createABTest() {
+            const data = await callApi(`${API_BASE}/ab-tests`, 'POST', {
+                name: document.getElementById('testName').value,
+                description: document.getElementById('testDescription').value,
+                variants: document.getElementById('variants').value.split(','),
+                goals: document.getElementById('goals').value.split(',')
+            });
+            displayResult('abTestResult', data);
+        }
+
+        async function assignToTest() {
+            const testName = document.getElementById('testName').value;
+            const data = await callApi(`${API_BASE}/ab-tests/${testName}/assign`, 'POST');
+            displayResult('abTestResult', data);
+        }
+
+        async function trackConversion() {
+            const testName = document.getElementById('testName').value;
+            const goals = document.getElementById('goals').value.split(',');
+            const data = await callApi(`${API_BASE}/ab-tests/${testName}/conversion`, 'POST', {
+                goal: goals[0],
+                value: 1
+            });
+            displayResult('abTestResult', data);
+        }
+
+        async function getTestResults() {
+            const testName = document.getElementById('testName').value;
+            const data = await callApi(`${API_BASE}/ab-tests/${testName}/results`);
+            displayResult('abTestResult', data);
+        }
+
+        // Data Warehouse ETL
+        async function scheduleETLJob() {
+            const data = await callApi(`${API_BASE}/etl/jobs`, 'POST', {
+                type: document.getElementById('etlType').value,
+                entity: document.getElementById('etlEntity').value,
+                destination: document.getElementById('etlDestination').value
+            });
+            displayResult('etlResult', data);
+            if (data.id) {
+                etlJobId = data.id;
+            }
+        }
+
+        async function executeETLJob() {
+            const data = await callApi(`${API_BASE}/etl/jobs/${etlJobId}/execute`, 'POST');
+            displayResult('etlResult', data);
+        }
+
+        // Cohort Analysis
+        async function createCohort() {
+            const data = await callApi(`${API_BASE}/cohorts`, 'POST', {
+                name: document.getElementById('cohortName').value,
+                description: document.getElementById('cohortDescription').value,
+                type: document.getElementById('cohortType').value,
+                criteria: { type: document.getElementById('cohortType').value }
+            });
+            displayResult('cohortResult', data);
+            if (data.id) {
+                cohortId = data.id;
+            }
+        }
+
+        async function getCohortMetrics() {
+            const data = await callApi(`${API_BASE}/cohorts/${cohortId}/metrics`);
+            displayResult('cohortResult', data);
+        }
+    </script>
+</body>
+</html>
